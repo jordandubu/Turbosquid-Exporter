@@ -1,0 +1,5 @@
+__pycache__/
+render_scenes/LilySurface/*
+render_scenes/utils/*
+render_scenes/LilySurface/hdrihaven/Rural Asphalt Road/.meta
+.git.code-workspace
