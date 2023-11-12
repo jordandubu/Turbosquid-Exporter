@@ -6,7 +6,7 @@ from bpy.props import (
     EnumProperty
 )
 
-from .operators import RenderingOperator, TestConnectionOperator, CreateProductOperator, ImportHelperBoxOperator, OpenLibraryPathOperator
+from .operators import RenderingOperator, TestConnectionOperator, CreateProductOperator, ImportHelperBoxOperator, OpenLibraryPathOperator, ImportSceneOperator
 from .panels import RenderingOperatorPanel
 from .preferences import AddonPreferences
 from .__init__ import ADDON_NAME
@@ -32,7 +32,7 @@ bpy.types.Scene.render_scene = bpy.props.EnumProperty(
 
 
 def register():
-
+    bpy.utils.register_class(ImportSceneOperator)
     bpy.types.Scene.show_rendering_section = bpy.props.BoolProperty(default=True, description="Toggle the rendering section")
     bpy.types.Scene.show_register_section = bpy.props.BoolProperty(default=True, description="Toggle the register section")
     bpy.types.Scene.show_product_info_section = bpy.props.BoolProperty(default=True, description="Toggle the product info section")
@@ -105,3 +105,4 @@ def unregister():
     bpy.utils.unregister_class(AddonPreferences)
     bpy.utils.unregister_class(ImportHelperBoxOperator)
     bpy.utils.unregister_class(OpenLibraryPathOperator)
+    bpy.utils.unregister_class(ImportSceneOperator)
