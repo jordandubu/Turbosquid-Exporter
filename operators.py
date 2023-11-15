@@ -78,49 +78,39 @@ class RenderingOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
+import bpy
+import os
+from .__init__ import ADDON_NAME
+
+import bpy
+import os
+
 class ImportSceneOperator(bpy.types.Operator):
-    """Import all scenes from a specified .blend file and link a specified collection to each imported scene"""
+    """Import all scenes from a specified .blend file"""
     bl_idname = "scene.import_scene"
     bl_label = "Import Selected Scene"
 
     def execute(self, context):
-        scene_name = context.scene.render_scene
-        collection_name = context.scene.my_collection
+        file_scene_name = context.scene.render_scene
 
-        if not scene_name:
+        if not file_scene_name:
             self.report({'WARNING'}, "No scene file specified")
             return {'CANCELLED'}
 
-        if not collection_name:
-            self.report({'WARNING'}, "No collection specified")
-            return {'CANCELLED'}
-
-        blend_file_path = os.path.join(context.preferences.addons[ADDON_NAME].preferences.library_path, scene_name)
+        blend_file_path = os.path.join(context.preferences.addons[ADDON_NAME].preferences.library_path, file_scene_name)
 
         if not os.path.exists(blend_file_path):
             self.report({'ERROR'}, f"File not found: {blend_file_path}")
             return {'CANCELLED'}
 
         with bpy.data.libraries.load(blend_file_path, link=False) as (data_from, data_to):
+            # Charger toutes les scènes
             data_to.scenes = data_from.scenes
-            data_to.objects = data_from.objects
-
-        for imported_scene_name in data_to.scenes:
-            imported_scene = bpy.data.scenes[imported_scene_name]
-            bpy.context.window.scene = imported_scene
-
-            # Liez la collection spécifiée comme instance de collection
-            if collection_name in bpy.data.collections:
-                collection = bpy.data.collections[collection_name]
-                instance = bpy.data.objects.new(name=collection.name + "_instance", object_data=None)
-                instance.instance_type = 'COLLECTION'
-                instance.instance_collection = collection
-                imported_scene.collection.objects.link(instance)
-            else:
-                self.report({'WARNING'}, f"Collection '{collection_name}' not found")
 
         self.report({'INFO'}, f"Imported scenes from {blend_file_path}")
         return {'FINISHED'}
+
+
 
 
 

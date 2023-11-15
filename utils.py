@@ -93,8 +93,8 @@ def render_scene(scene, scene_name, export_path, shading_type='RENDERED'):
                 if shading_type == 'SOLID':
                     bpy.ops.object.select_all(action='DESELECT')
                     space.overlay.show_wireframes = True
-                    space.shading.color_type = 'SINGLE'
-                    space.shading.wireframe_color_type = 'SINGLE'
+                    space.shading.color_type = 'THEME'
+                    space.shading.wireframe_color_type = 'THEME'
                     space.overlay.show_floor = False
                     space.overlay.show_axis_x = False
                     space.overlay.show_axis_y = False
