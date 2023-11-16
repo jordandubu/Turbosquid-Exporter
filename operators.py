@@ -79,6 +79,13 @@ class RenderingOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
+import bpy
+import os
+from .__init__ import ADDON_NAME
+
+import bpy
+import os
+
 class ImportSceneOperator(bpy.types.Operator):
     """Import all scenes from a specified .blend file"""
     bl_idname = "scene.import_scene"
