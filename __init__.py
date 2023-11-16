@@ -3,7 +3,7 @@ bl_info = {
     "description": "Create renders, generate description",
     "author": "Jordan Dubu - Doyorn",
     "version": (1, 1),
-    "blender": (3, 6, 5),
+    "blender": (4, 0, 0),
     "location": "View3D > Tool Shelf > Turbosquid Tab",
     "warning": "",
     "wiki_url": "",

@@ -94,7 +94,7 @@ def render_scene(scene, scene_name, export_path, shading_type='RENDERED'):
                     bpy.ops.object.select_all(action='DESELECT')
                     space.overlay.show_wireframes = True
                     space.shading.color_type = 'SINGLE'
-                    space.shading.wireframe_color_type = 'SINGLE'
+                    space.shading.wireframe_color_type = 'THEME'
                     space.overlay.show_floor = False
                     space.overlay.show_axis_x = False
                     space.overlay.show_axis_y = False
@@ -108,7 +108,7 @@ def render_scene(scene, scene_name, export_path, shading_type='RENDERED'):
                 bpy.ops.render.opengl(animation=True)
                 break
             else:
-                bpy.ops.render.render('EXEC_DEFAULT', animation=True)
+                bpy.ops.render.render('EXEC_DEFAULT', animation=True,use_viewport=True)
 
     space.shading.type = original_shading_type
     space.overlay.show_wireframes = original_overlay_settings["show_wireframes"]

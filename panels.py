@@ -32,12 +32,12 @@ class RenderingOperatorPanel(bpy.types.Panel):
 
             # Ajout de la propriété "render_scene" à la même ligne
             row.prop(context.scene, "render_scene", text="")
-            col.operator("object.rendering_operator")
+            col.operator("object.rendering_operator", icon='RENDER_ANIMATION')
             # Add a label 'OR'
-            layout.label(text="OR")
+            col.label(text="OR:")
 
             # Button to import the scene
-            layout.operator("scene.import_scene", text="Import Selected Scene")
+            col.operator("scene.import_scene", text="Import Selected Scene")
 
         # Section Register
         box = layout.box()
