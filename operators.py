@@ -1,3 +1,24 @@
+#!/usr/bin/python3
+# copyright (c) 2023 - DUBU JORDAN
+
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
 import bpy, os, subprocess
 from .utils import test_connection, setup_wireframe_material, replace_material, render_scene
 from .__init__ import ADDON_NAME
@@ -70,6 +91,25 @@ class RenderingOperator(bpy.types.Operator):
             wm.progress_update(index)
             wm.progress_end()
 
+         # Ouvrir le dossier export_path dans le gestionnaire de fichiers
+        export_path = bpy.path.abspath(context.scene.export_path)
+        
+        if os.path.exists(export_path):
+            if os.name == 'nt':  # Windows
+                os.startfile(export_path)
+            elif sys.platform == 'darwin':  # macOS
+                subprocess.run(['open', export_path])
+            elif sys.platform == 'linux':  # Linux
+                subprocess.run(['xdg-open', export_path])
+            else:
+                self.report({'WARNING'}, "Could not open the directory")
+                return {'CANCELLED'}
+        else:
+            self.report({'WARNING'}, "Path does not exist")
+            return {'CANCELLED'}
+
+
+
         # Étape 2 : Supprimez toutes les scènes importées
         for scene in imported_scenes:
             bpy.data.scenes.remove(scene)
@@ -79,12 +119,6 @@ class RenderingOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-import bpy
-import os
-from .__init__ import ADDON_NAME
-
-import bpy
-import os
 
 class ImportSceneOperator(bpy.types.Operator):
     """Import all scenes from a specified .blend file"""
