@@ -62,51 +62,59 @@ class RenderingOperator(bpy.types.Operator):
         num_scenes = len(all_scene_names)
 
         for index, scene_name in enumerate(all_scene_names):
+            # Assuming you're inside the execute method of your operator
+
+            # Mapping of scene names to their corresponding checkbox properties
+            scene_checkboxes = {
+                'rendering': context.scene.rendering,
+                'turntable': context.scene.turntable,
+                'searchimage': context.scene.searchimage,
+                'wire': context.scene.wire,
+            }
+
             new_scene = bpy.data.scenes.get(scene_name)
+            if scene_checkboxes.get(scene_name, False):
 
-            if new_scene is None:
-                with bpy.data.libraries.load(blend_file_path) as (data_from, data_to):
-                    data_to.scenes = [scene_name]
-                new_scene = bpy.data.scenes.get(scene_name)
                 if new_scene is None:
-                    self.report({'ERROR'}, f"Scene '{scene_name}' not found")
+                    with bpy.data.libraries.load(blend_file_path) as (data_from, data_to):
+                        data_to.scenes = [scene_name]
+                    new_scene = bpy.data.scenes.get(scene_name)
+                    if new_scene is None:
+                        self.report({'ERROR'}, f"Scene '{scene_name}' not found")
+                        return {'CANCELLED'}
+
+                    imported_scenes.append(new_scene)  # Ajoutez la nouvelle scène à la liste
+
+                bpy.context.window.scene = new_scene
+
+                # Importer la collection
+                if collection.name not in new_scene.collection.children:
+                    new_scene.collection.children.link(collection)
+
+                if scene_name == "wire":
+                    render_scene(new_scene, scene_name, export_path, shading_type='SOLID')
+                else:
+                    bpy.context.preferences.view.render_display_type = 'WINDOW'
+                    render_scene(new_scene, scene_name, export_path)
+
+                wm = context.window_manager
+                wm.progress_begin(0, num_scenes)
+                wm.progress_update(index)
+                wm.progress_end()
+
+            if os.path.exists(export_path):
+                if os.name == 'nt':  # Windows
+                    os.startfile(export_path)
+                elif sys.platform == 'darwin':  # macOS
+                    subprocess.run(['open', export_path])
+                elif sys.platform == 'linux':  # Linux
+                    subprocess.run(['xdg-open', export_path])
+                else:
+                    self.report({'WARNING'}, "Could not open the directory")
                     return {'CANCELLED'}
-
-                imported_scenes.append(new_scene)  # Ajoutez la nouvelle scène à la liste
-
-            bpy.context.window.scene = new_scene
-
-            # Importer la collection
-            if collection.name not in new_scene.collection.children:
-                new_scene.collection.children.link(collection)
-
-            if scene_name == "wire":
-                render_scene(new_scene, scene_name, export_path, shading_type='SOLID')
             else:
-                bpy.context.preferences.view.render_display_type = 'WINDOW'
-                render_scene(new_scene, scene_name, export_path)
-
-            wm = context.window_manager
-            wm.progress_begin(0, num_scenes)
-            wm.progress_update(index)
-            wm.progress_end()
-
-         # Ouvrir le dossier export_path dans le gestionnaire de fichiers
-        export_path = bpy.path.abspath(context.scene.export_path)
-        
-        if os.path.exists(export_path):
-            if os.name == 'nt':  # Windows
-                os.startfile(export_path)
-            elif sys.platform == 'darwin':  # macOS
-                subprocess.run(['open', export_path])
-            elif sys.platform == 'linux':  # Linux
-                subprocess.run(['xdg-open', export_path])
-            else:
-                self.report({'WARNING'}, "Could not open the directory")
+                self.report({'WARNING'}, "Path does not exist")
                 return {'CANCELLED'}
-        else:
-            self.report({'WARNING'}, "Path does not exist")
-            return {'CANCELLED'}
 
 
 
@@ -116,6 +124,41 @@ class RenderingOperator(bpy.types.Operator):
 
         # Étape 3 : Réglez la scène actuelle sur la scène d'origine
         bpy.context.window.scene = current_scene
+
+        # Modify 'export_path' to include the 'turntable' directory
+        export_path = os.path.join(context.scene.export_path, "turntable")
+        
+        if os.path.isdir(export_path):
+            # Assuming 'export_path' now correctly points to the directory containing the images
+            image_sequence_pattern = os.path.join(export_path, "turntable%04d.png")  # Adjust pattern as needed
+
+            # Define FFmpeg executable path
+            addon_dir = os.path.dirname(os.path.realpath(__file__))
+            ffmpeg_path = os.path.join(addon_dir, "ffmpeg", "bin", "ffmpeg.exe")
+
+            video_output_path = os.path.join(export_path, "..", "output_video.mp4")  # Save the video one level up from 'turntable'
+
+            ffmpeg_command = [
+                ffmpeg_path,
+                '-y',  # Force l'écrasement des fichiers de sortie existants
+                '-framerate', '24',  # Ou votre fréquence d'images souhaitée
+                '-i', image_sequence_pattern,
+                '-c:v', 'libx264',
+                '-pix_fmt', 'yuv420p',
+                video_output_path
+            ]
+
+
+            # Execute FFmpeg command
+            try:
+                subprocess.run(ffmpeg_command, check=True)
+                self.report({'INFO'}, f"Video successfully created: {video_output_path}")
+            except subprocess.CalledProcessError as e:
+                self.report({'ERROR'}, "Failed to create video. Error: " + str(e))
+                return {'CANCELLED'}
+        else:
+            # The 'turntable' directory does not exist; you might want to handle this case, e.g.,:
+            self.report({'WARNING'}, "The 'turntable' directory does not exist. Skipping video creation.")
         return {'FINISHED'}
 
 

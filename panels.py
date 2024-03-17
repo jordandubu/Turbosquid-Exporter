@@ -54,6 +54,14 @@ class RenderingOperatorPanel(bpy.types.Panel):
             # Ajout de la propriété "render_scene" à la même ligne
             row.prop(context.scene, "render_scene", text="")
             col.operator("object.rendering_operator", icon='RENDER_ANIMATION')
+
+            layout = self.layout
+            
+            layout.prop(context.scene, "rendering")
+            layout.prop(context.scene, "turntable")
+            layout.prop(context.scene, "searchimage")
+            layout.prop(context.scene, "wire")
+
             # Add a label 'OR'
 #            col.label(text="OR:")
 #

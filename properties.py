@@ -117,6 +117,30 @@ def register():
         ],
         name="3D Model License for Customers"
     )
+    #Partie checkboxes
+    bpy.types.Scene.rendering = bpy.props.BoolProperty(
+        name="Rendering",
+        description="Enable or disable rendering",
+        default=False
+    )
+    
+    bpy.types.Scene.turntable = bpy.props.BoolProperty(
+        name="Turntable",
+        description="Enable or disable turntable rendering",
+        default=False
+    )
+    
+    bpy.types.Scene.searchimage = bpy.props.BoolProperty(
+        name="Search Image",
+        description="Enable or disable search image rendering",
+        default=False
+    )
+    
+    bpy.types.Scene.wire = bpy.props.BoolProperty(
+        name="Wire",
+        description="Enable or disable wire rendering",
+        default=False
+    )
 
 def unregister():
     bpy.utils.unregister_class(TestConnectionOperator)
@@ -127,3 +151,7 @@ def unregister():
     bpy.utils.unregister_class(ImportHelperBoxOperator)
     bpy.utils.unregister_class(OpenLibraryPathOperator)
     bpy.utils.unregister_class(ImportSceneOperator)
+    del bpy.types.Scene.rendering
+    del bpy.types.Scene.turntable
+    del bpy.types.Scene.searchimage
+    del bpy.types.Scene.wire
